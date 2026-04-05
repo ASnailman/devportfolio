@@ -22,14 +22,14 @@ export default function Home() {
       <nav className="navbar">
         
         {/* Left Side: Animated Greeting */}
-        {/* <motion.div 
+        <motion.div 
           className="nav-left"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          Heyo, I'm Harris.
-        </motion.div> */}
+          Heyo, I&apos;m Harris.
+        </motion.div>
 
         {/* Right Side: Action Buttons */}
         <div className="nav-right">
