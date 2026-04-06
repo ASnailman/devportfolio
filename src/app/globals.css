@@ -70,3 +70,54 @@ body {
 .icon-btn:hover {
   transform: scale(1.1); /* Slight pop effect when hovering */
 }
+
+/* 1. The 3-Column Layout */
+.main-grid {
+  display: grid;
+  /* This creates 3 columns: 100px wide, flexible middle, 300px wide */
+  grid-template-columns: 100px 1fr 300px; 
+  flex: 1; /* Takes up the remaining vertical space */
+}
+
+/* 2. Left Sidebar */
+.left-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* Centers icons horizontally */
+  padding-top: 3rem;      /* Pushes icons down from the top */
+  gap: 3rem;              /* Space between each icon group */
+  border-right: 3px solid var(--border-color); /* The vertical line from your sketch */
+}
+
+/* 3. Navigation Items */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-family: inherit;
+}
+
+.nav-item span {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.nav-item:hover {
+  transform: scale(1.1); /* Slight pop effect on hover */
+}
+
+/* Placeholders for the next steps */
+.content-area {
+  padding: 2rem;
+}
+
+.right-sidebar {
+  border-left: 3px solid var(--border-color); /* The right vertical line from your sketch */
+  padding: 2rem;
+}
