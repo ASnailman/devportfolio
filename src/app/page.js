@@ -28,7 +28,7 @@ export default function Home() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          Heyo, I&apos;m Harris.
+          Heyo, I&apos;m Harris. I like robotics.
         </motion.div>
 
         {/* Right Side: Action Buttons */}
