@@ -7,7 +7,7 @@
 
 /* When the 'dark' class is on the body, these colors swap automatically! */
 body.dark {
-  --bg-color: #121212;
+  --bg-color: #1e1e1e;
   --text-color: #ffffff;
   --border-color: #ffffff;
 }
