@@ -1,142 +1,67 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
+/* 1. The Main Screen Container */
+.screenContainer {
+  position: relative;
+  z-index: 1; /* Ensures the UI sits on TOP of the wave background */
+  width: 100vw;
+  height: 100vh;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
-}
-
-.main {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
   justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  padding: 60px; /* Padding from the edges of the screen */
 }
 
-.intro {
+/* 2. The Top Widget Area using CSS Grid */
+.widgetGrid {
+  display: grid;
+  /* Creates a flexible grid layout similar to an iPad home screen */
+  grid-template-columns: repeat(6, 100px);
+  grid-auto-rows: 100px;
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto; /* Centers the grid */
+}
+
+/* 3. Reusable Glassmorphism Utility Class */
+.glassEffect {
+  background: rgba(255, 255, 255, 0.1); /* Transparent white */
+  backdrop-filter: blur(16px);          /* The frosted glass blur */
+  -webkit-backdrop-filter: blur(16px);  /* For Safari compatibility */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Soft highlight edge */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15); /* Soft drop shadow */
+  border-radius: 24px;                  /* Apple-style squircle corners */
+  color: white;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
-}
-
-.ctas a {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+  justify-content: center;
+  flex-direction: column;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+/* Specific Sizes for your sketched widgets */
+.profileWidget {
+  grid-column: span 2; /* Takes up 2 columns */
+  grid-row: span 2;    /* Takes up 2 rows */
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.smallWidget {
+  grid-column: span 1;
+  grid-row: span 1;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+/* 4. The Bottom Dock */
+.dock {
+  width: max-content;
+  min-width: 400px;
+  height: 80px;
+  margin: 0 auto 20px auto; /* Centers horizontally, adds bottom margin */
+  padding: 10px 20px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  border-radius: 30px; /* More rounded than widgets */
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
-  }
+.dockIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
 }
