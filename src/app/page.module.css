@@ -1,4 +1,4 @@
-/* 1. The Main Screen Container */
+/* 1. Main Layout */
 .screenContainer {
   position: relative;
   z-index: 1;
@@ -7,33 +7,30 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px 20px; /* Reduced padding on mobile */
+  padding: 40px 20px;
 }
 
-/* 2. Responsive Widget Grid */
+/* 2. Desktop Grid */
 .widgetGrid {
   display: grid;
-  /* Base Mobile Layout: 2 columns, filling the space */
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   width: 100%;
-  max-width: 1200px; /* Much wider maximum width for desktop */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Tablet Layout (768px and wider) */
 @media (min-width: 768px) {
   .widgetGrid {
-    grid-template-columns: repeat(4, 120px); /* 4 fixed-size columns */
+    grid-template-columns: repeat(4, 120px);
     gap: 40px;
-    justify-content: center; /* Centers the grid in the screen */
+    justify-content: center;
   }
 }
 
-/* Desktop Layout (1024px and wider) */
 @media (min-width: 1024px) {
   .widgetGrid {
-    grid-template-columns: repeat(6, 120px); /* 6 fixed-size columns */
+    grid-template-columns: repeat(6, 120px);
     gap: 50px;
   }
 }
@@ -43,7 +40,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px; 
-  cursor: pointer; /* Changed back to pointer from grab */
+  cursor: pointer;
 }
 
 .profileWrapper {
@@ -57,46 +54,43 @@
   }
 }
 
-/* 4. The Glass Box Elements */
+/* 3. Glassmorphism Utilities */
 .glassEffect {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
-  /* -webkit-backdrop-filter: blur(16px); */
-  border: 1px solid rgba(43, 43, 43, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.20);
   border-radius: 25px; 
   display: flex;
   align-items: center;
   justify-content: center;
   width: 85%;
-  aspect-ratio: 1 / 1; /* Forces the boxes to always be perfect squares */
+  aspect-ratio: 1 / 1;
 }
 
-/* 5. Labels and Placeholders */
 .appLabel {
   font-size: 14px;
   font-weight: 400;
   color: white;
-  text-shadow: 0 1px 3px rgba(0,0,0,1); /* Adds a shadow so text is readable over the bright waves */
+  text-shadow: 0 1px 3px rgba(0,0,0,1);
   letter-spacing: 0.5px;
 }
 
-/* .iconPlaceholder {
+.iconPlaceholder {
   width: 40%;
   height: 40%;
-  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
-} */
+}
 
-/* --- 6. THE DOCK UPDATES --- */
+/* 4. Dock Styles */
 .dock {
-  width: max-content;
-  min-width: 300px;
+  width: fit-content;
   height: 90px;
   margin: 0 auto;
   padding: 15px 20px;
@@ -106,7 +100,6 @@
   border-radius: 32px; 
 }
 
-/* Open App Icons in the Dock */
 .dockIcon {
   width: 60px;
   height: 60px;
@@ -119,7 +112,6 @@
   transform: scale(1.1) translateY(-5px);
 }
 
-/* The vertical separator line in the Dock */
 .dockSeparator {
   width: 2px;
   height: 40px;
@@ -128,7 +120,6 @@
   margin: 0 5px;
 }
 
-/* Utility Circles (Color/Sound) */
 .dockUtility {
   width: 45px;
   height: 45px;
@@ -144,17 +135,23 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* 7. Loading Screen */
+.emptyDockText {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+.dockIconText {
+  font-size: 10px;
+}
+
+/* 5. Loading Screen */
 .loaderContainer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 50; /* Sits on top of everything */
+  z-index: 50;
 }
 
 .loaderLogo {
@@ -163,7 +160,6 @@
   border-radius: 24px;
 }
 
-/* A simple CSS spinner */
 .spinner {
   width: 30px;
   height: 30px;
@@ -172,7 +168,7 @@
   border-radius: 50%;
 }
 
-/* --- 8. WINDOW STYLES --- */
+/* 6. Window Styles */
 .windowContainer {
   position: absolute;
   top: 15%;
@@ -183,18 +179,17 @@
   display: flex;
   flex-direction: column;
   border-radius: 16px;
-  overflow: hidden; /* Keeps the content inside the rounded corners */
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); /* Deep drop shadow for depth */
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
-/* The grab-able top bar */
 .windowHeader {
   height: 40px;
   background: rgba(255, 255, 255, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
-  justify-content: center; /* Centers the title */
+  justify-content: center;
   position: relative;
   cursor: grab;
 }
@@ -210,7 +205,6 @@
   letter-spacing: 0.5px;
 }
 
-/* The Mac-style control dots */
 .windowControls {
   position: absolute;
   left: 15px;
@@ -218,20 +212,40 @@
   gap: 8px;
 }
 
-.controlDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.controlBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
-.closeDot { background-color: #ff5f56; }
-.minDot { background-color: #ffbd2e; }
-.maxDot { background-color: #27c93f; }
+
+.controlBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
 
 .windowContent {
   flex: 1;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.2); /* Slightly darker than the header */
+  background: rgba(0, 0, 0, 0.2);
   color: white;
-  overflow-y: auto; /* Allows scrolling inside the window */
+  overflow-y: auto;
+}
+
+.resizeHandle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%);
+  border-bottom-right-radius: 16px;
 }
