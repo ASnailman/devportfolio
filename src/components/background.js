@@ -8,9 +8,24 @@ import styles from "./background.module.css";
 //     '#3b8df0', '#5e6fc8', '#303096'
 // ];
 
+// const colors = [
+//     '#111827', // Neutral Black Background
+//     '#1f2937', // Section Background
+//     '#10b981', // Emerald Accent
+//     '#34d399', // Bright Mint (Call to action)
+//     '#9ca3af', // Muted Gray Text
+//     '#f9fafb4c', // Off-white Text
+//     '#374151'  // subtle UI Divider
+// ];
+
 const colors = [
-    '#1a1a24','#2d2d4e','#6262a151','#272747',
-    '#292b49','#1a1a24','#1a1a24',
+    '#0a0a0a', // True Dark Background
+    '#171717', // Secondary Background
+    '#6365f18f', // Indigo Accent
+    '#8a5cf6c0', // Violet Highlight
+    '#a3a3a3', // Muted Text
+    '#ffffff80', // Pure White Text
+    '#262626'  // Dark Border
 ];
 
 // Bezier Math Logic

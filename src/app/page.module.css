@@ -1,67 +1,237 @@
 /* 1. The Main Screen Container */
 .screenContainer {
   position: relative;
-  z-index: 1; /* Ensures the UI sits on TOP of the wave background */
+  z-index: 1;
   width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 60px; /* Padding from the edges of the screen */
+  padding: 40px 20px; /* Reduced padding on mobile */
 }
 
-/* 2. The Top Widget Area using CSS Grid */
+/* 2. Responsive Widget Grid */
 .widgetGrid {
   display: grid;
-  /* Creates a flexible grid layout similar to an iPad home screen */
-  grid-template-columns: repeat(6, 100px);
-  grid-auto-rows: 100px;
-  gap: 30px;
-  max-width: 1000px;
-  margin: 0 auto; /* Centers the grid */
+  /* Base Mobile Layout: 2 columns, filling the space */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px; /* Much wider maximum width for desktop */
+  margin: 0 auto;
 }
 
-/* 3. Reusable Glassmorphism Utility Class */
+/* Tablet Layout (768px and wider) */
+@media (min-width: 768px) {
+  .widgetGrid {
+    grid-template-columns: repeat(4, 120px); /* 4 fixed-size columns */
+    gap: 40px;
+    justify-content: center; /* Centers the grid in the screen */
+  }
+}
+
+/* Desktop Layout (1024px and wider) */
+@media (min-width: 1024px) {
+  .widgetGrid {
+    grid-template-columns: repeat(6, 120px); /* 6 fixed-size columns */
+    gap: 50px;
+  }
+}
+
+.appWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px; 
+  cursor: pointer; /* Changed back to pointer from grab */
+}
+
+.profileWrapper {
+  grid-column: span 2;
+}
+
+@media (min-width: 768px) {
+  .profileWrapper {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
+
+/* 4. The Glass Box Elements */
 .glassEffect {
-  background: rgba(255, 255, 255, 0.1); /* Transparent white */
-  backdrop-filter: blur(16px);          /* The frosted glass blur */
-  -webkit-backdrop-filter: blur(16px);  /* For Safari compatibility */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Soft highlight edge */
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15); /* Soft drop shadow */
-  border-radius: 24px;                  /* Apple-style squircle corners */
-  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  /* -webkit-backdrop-filter: blur(16px); */
+  border: 1px solid rgba(43, 43, 43, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.20);
+  border-radius: 25px; 
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  width: 85%;
+  aspect-ratio: 1 / 1; /* Forces the boxes to always be perfect squares */
 }
 
-/* Specific Sizes for your sketched widgets */
-.profileWidget {
-  grid-column: span 2; /* Takes up 2 columns */
-  grid-row: span 2;    /* Takes up 2 rows */
+/* 5. Labels and Placeholders */
+.appLabel {
+  font-size: 14px;
+  font-weight: 400;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0,0,0,1); /* Adds a shadow so text is readable over the bright waves */
+  letter-spacing: 0.5px;
 }
 
-.smallWidget {
-  grid-column: span 1;
-  grid-row: span 1;
-}
+/* .iconPlaceholder {
+  width: 40%;
+  height: 40%;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+} */
 
-/* 4. The Bottom Dock */
+/* --- 6. THE DOCK UPDATES --- */
 .dock {
   width: max-content;
-  min-width: 400px;
-  height: 80px;
-  margin: 0 auto 20px auto; /* Centers horizontally, adds bottom margin */
-  padding: 10px 20px;
+  min-width: 300px;
+  height: 90px;
+  margin: 0 auto;
+  padding: 15px 20px;
   display: flex;
   gap: 15px;
   align-items: center;
-  border-radius: 30px; /* More rounded than widgets */
+  border-radius: 32px; 
 }
 
+/* Open App Icons in the Dock */
 .dockIcon {
   width: 60px;
   height: 60px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.dockIcon:hover {
+  transform: scale(1.1) translateY(-5px);
+}
+
+/* The vertical separator line in the Dock */
+.dockSeparator {
+  width: 2px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 0 5px;
+}
+
+/* Utility Circles (Color/Sound) */
+.dockUtility {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.dockUtility:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 7. Loading Screen */
+.loaderContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50; /* Sits on top of everything */
+}
+
+.loaderLogo {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+}
+
+/* A simple CSS spinner */
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+}
+
+/* --- 8. WINDOW STYLES --- */
+.windowContainer {
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 60vw;
+  max-width: 800px;
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
   border-radius: 16px;
+  overflow: hidden; /* Keeps the content inside the rounded corners */
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); /* Deep drop shadow for depth */
+}
+
+/* The grab-able top bar */
+.windowHeader {
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centers the title */
+  position: relative;
+  cursor: grab;
+}
+
+.windowHeader:active {
+  cursor: grabbing;
+}
+
+.windowTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+/* The Mac-style control dots */
+.windowControls {
+  position: absolute;
+  left: 15px;
+  display: flex;
+  gap: 8px;
+}
+
+.controlDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.closeDot { background-color: #ff5f56; }
+.minDot { background-color: #ffbd2e; }
+.maxDot { background-color: #27c93f; }
+
+.windowContent {
+  flex: 1;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2); /* Slightly darker than the header */
+  color: white;
+  overflow-y: auto; /* Allows scrolling inside the window */
 }
