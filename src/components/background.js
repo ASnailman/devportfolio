@@ -3,10 +3,10 @@
 import { motion } from "motion/react";
 import styles from "./background.module.css";
 
-// const colors = [
-//     '#2b2d36', '#0a9683', '#09caba', '#00d2ff',
-//     '#3b8df0', '#5e6fc8', '#303096'
-// ];
+const colors = [
+    '#2b2d36', '#0a9683', '#09caba', '#00d2ff',
+    '#3b8df0', '#5e6fc8', '#303096'
+];
 
 // const colors = [
 //     '#111827', // Neutral Black Background
@@ -18,15 +18,15 @@ import styles from "./background.module.css";
 //     '#374151'  // subtle UI Divider
 // ];
 
-const colors = [
-    '#0a0a0a', // True Dark Background
-    '#171717', // Secondary Background
-    '#6365f18f', // Indigo Accent
-    '#8a5cf6c0', // Violet Highlight
-    '#a3a3a3', // Muted Text
-    '#ffffff80', // Pure White Text
-    '#262626'  // Dark Border
-];
+// const colors = [
+//     '#0a0a0a', // True Dark Background
+//     '#171717', // Secondary Background
+//     '#6365f18f', // Indigo Accent
+//     '#8a5cf6c0', // Violet Highlight
+//     '#a3a3a3', // Muted Text
+//     '#ffffff80', // Pure White Text
+//     '#262626'  // Dark Border
+// ];
 
 // Bezier Math Logic
 function generateWavePath(baseY, amplitude, phase, width = 1200, height = 800) {

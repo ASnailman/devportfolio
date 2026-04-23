@@ -13,7 +13,6 @@ const APPS_CONFIG = [
   { id: 'projects', label: 'Apps', isLarge: false },
 ];
 
-// Extracted the GridApp component for cleaner mapping and independent animations
 function GridApp({ app, onOpen }) {
   const appVariants = {
     hidden: { y: -100, opacity: 0 },
