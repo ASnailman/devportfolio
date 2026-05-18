@@ -24,8 +24,8 @@ export default function Dock({ openWindows, handleFocusWindow }) {
 
         <div className={styles.dockSeparator} />
 
-        <div className={`${styles.glassEffect} ${styles.dockUtility}`}>🎨</div>
-        <div className={`${styles.glassEffect} ${styles.dockUtility}`}>🔊</div>
+        <div className={`${styles.glassEffect} ${styles.dockUtility}`}></div>
+        <div className={`${styles.glassEffect} ${styles.dockUtility}`}></div>
     </motion.div>
   );
 }
