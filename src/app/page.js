@@ -16,10 +16,10 @@ const APPS_CONFIG = [
 function GridApp({ app, onOpen }) {
   const appVariants = {
     hidden: { y: -100, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1, 
-      transition: { type: "spring", stiffness: 300, damping: 20 } 
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 20 }
     }
   };
 
@@ -40,12 +40,22 @@ function GridApp({ app, onOpen }) {
 }
 
 export default function Home() {
-  const screenRef = useRef(null);
+  const windowLayerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [openWindows, setOpenWindows] = useState([]);
   const [minimizedWindows, setMinimizedWindows] = useState([]);
   const [activeWindow, setActiveWindow] = useState(null);
+
+  // Incrementing z-index per focus, so the most-recently-touched window is
+  // always on top and the prior stacking order is preserved underneath.
+  const [zIndices, setZIndices] = useState({});
+  const zCounter = useRef(10);
+
+  const bringToFront = (appId) => {
+    zCounter.current += 1;
+    setZIndices((prev) => ({ ...prev, [appId]: zCounter.current }));
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -53,72 +63,72 @@ export default function Home() {
   }, []);
 
   const handleOpenApp = (app) => {
-    if (!openWindows.find((w) => w.id === app.id)) {
-      setOpenWindows([...openWindows, app]);
-    }
-    if (minimizedWindows.includes(app.id)) {
-      setMinimizedWindows(minimizedWindows.filter(id => id !== app.id));
-    }
+    setOpenWindows((prev) =>
+      prev.find((w) => w.id === app.id) ? prev : [...prev, app]
+    );
+    setMinimizedWindows((prev) => prev.filter((id) => id !== app.id));
     setActiveWindow(app.id);
+    bringToFront(app.id);
   };
 
   const handleCloseWindow = (appId, event) => {
     event?.stopPropagation();
-    setOpenWindows(openWindows.filter((w) => w.id !== appId));
-    setMinimizedWindows(minimizedWindows.filter((id) => id !== appId));
+    setOpenWindows((prev) => prev.filter((w) => w.id !== appId));
+    setMinimizedWindows((prev) => prev.filter((id) => id !== appId));
+    setActiveWindow((prev) => (prev === appId ? null : prev));
   };
 
   const handleMinimizeWindow = (appId, event) => {
     event?.stopPropagation();
-    if (!minimizedWindows.includes(appId)) {
-      setMinimizedWindows([...minimizedWindows, appId]);
-    }
+    setMinimizedWindows((prev) =>
+      prev.includes(appId) ? prev : [...prev, appId]
+    );
+    setActiveWindow((prev) => (prev === appId ? null : prev));
   };
 
   const handleFocusWindow = (appId) => {
     setActiveWindow(appId);
-    if (minimizedWindows.includes(appId)) {
-      setMinimizedWindows(minimizedWindows.filter(id => id !== appId));
-    }
+    setMinimizedWindows((prev) => prev.filter((id) => id !== appId));
+    bringToFront(appId);
   };
 
   const gridVariants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { 
-        staggerChildren: 0.15, 
-        delayChildren: 0.2 
-      } 
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2
+      }
     }
   };
 
   return (
-    <main ref={screenRef} style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
+    <main style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
       <Background />
-      
+
       <AnimatePresence>
         {isLoading ? (
-          <motion.div 
-            key="loader" 
-            className={styles.loaderContainer} 
+          <motion.div
+            key="loader"
+            className={styles.loaderContainer}
             exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
           >
             <div className={`${styles.glassEffect} ${styles.loaderLogo}`}>
-               <motion.div 
-                 className={styles.spinner} 
-                 animate={{ rotate: 360 }} 
-                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }} 
+               <motion.div
+                 className={styles.spinner}
+                 animate={{ rotate: 360 }}
+                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                />
             </div>
           </motion.div>
         ) : (
           <motion.div key="homescreen" className={styles.screenContainer}>
-            
-            <motion.div 
-              className={styles.widgetGrid} 
-              variants={gridVariants} 
-              initial="hidden" 
+
+            <motion.div
+              className={styles.widgetGrid}
+              variants={gridVariants}
+              initial="hidden"
               animate="visible"
             >
                 {APPS_CONFIG.map((app) => (
@@ -126,20 +136,32 @@ export default function Home() {
                 ))}
             </motion.div>
 
-            {openWindows.map((app) => (
-                <Window 
-                    key={`window-${app.id}`} 
-                    app={app} 
-                    isActive={activeWindow === app.id} 
-                    isMinimized={minimizedWindows.includes(app.id)}
-                    handleClose={handleCloseWindow} 
-                    handleMinimize={handleMinimizeWindow}
-                    handleFocus={handleFocusWindow}
-                    screenRef={screenRef}
-                />
-            ))}
+            {/* Dedicated full-viewport layer: it is the drag-constraint boundary
+                AND the positioning context for windows, so window (0,0) maps to
+                the viewport's top-left exactly. pointer-events:none lets clicks
+                fall through to the grid where no window covers it. */}
+            <div ref={windowLayerRef} className={styles.windowLayer}>
+              {openWindows.map((app) => (
+                  <Window
+                      key={`window-${app.id}`}
+                      app={app}
+                      isActive={activeWindow === app.id}
+                      isMinimized={minimizedWindows.includes(app.id)}
+                      zIndex={zIndices[app.id] ?? 10}
+                      handleClose={handleCloseWindow}
+                      handleMinimize={handleMinimizeWindow}
+                      handleFocus={handleFocusWindow}
+                      constraintsRef={windowLayerRef}
+                  />
+              ))}
+            </div>
 
-            <Dock openWindows={openWindows} handleFocusWindow={handleFocusWindow} />
+            <Dock
+              openWindows={openWindows}
+              activeWindow={activeWindow}
+              minimizedWindows={minimizedWindows}
+              handleFocusWindow={handleFocusWindow}
+            />
 
           </motion.div>
         )}

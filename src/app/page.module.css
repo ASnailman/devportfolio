@@ -90,6 +90,8 @@
 
 /* 4. Dock Styles */
 .dock {
+  position: relative;
+  z-index: 50;
   width: fit-content;
   height: 90px;
   margin: 0 auto;
@@ -97,19 +99,40 @@
   display: flex;
   gap: 15px;
   align-items: center;
-  border-radius: 32px; 
+  border-radius: 32px;
+  pointer-events: auto;
 }
 
 .dockIcon {
+  position: relative;
+  flex-direction: column;
+  gap: 4px;
   width: 60px;
   height: 60px;
+  padding: 0;
   border-radius: 14px;
   cursor: pointer;
-  transition: transform 0.2s;
+  color: white;
+  overflow: visible;
 }
 
-.dockIcon:hover {
-  transform: scale(1.1) translateY(-5px);
+.dockIconActive {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.dockIndicator {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.dockIndicatorMinimized {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .dockSeparator {
@@ -141,7 +164,13 @@
 }
 
 .dockIconText {
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* 5. Loading Screen */
@@ -169,18 +198,33 @@
 }
 
 /* 6. Window Styles */
+
+/* Full-viewport layer that hosts the windows. It is the drag-constraint
+   boundary and the positioning origin (0,0 = viewport top-left). Clicks pass
+   through empty areas to the desktop grid below. */
+.windowLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
 .windowContainer {
-  position: absolute;
-  top: 15%;
-  left: 20%;
-  width: 60vw;
-  max-width: 800px;
-  height: 60vh;
+  /* Size and position come from inline styles (motion x/y + size state). */
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  aspect-ratio: auto;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.windowActive {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
 }
 
 .windowHeader {
