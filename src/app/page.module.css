@@ -197,6 +197,25 @@
   border-radius: 50%;
 }
 
+/* Startup greeting (iPad-style word-by-word hello) */
+.greeting {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.4em;
+  padding: 0 24px;
+  max-width: 90vw;
+}
+
+.greetingWord {
+  font-size: clamp(28px, 6vw, 56px);
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
 /* 6. Window Styles */
 
 /* Full-viewport layer that hosts the windows. It is the drag-constraint

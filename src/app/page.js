@@ -13,6 +13,12 @@ const APPS_CONFIG = [
   { id: 'projects', label: 'Apps', isLarge: false },
 ];
 
+// Startup greeting shown after the loading spinner. Change this string to
+// update the message; it is split on spaces so each word pops in on its own.
+const GREETING_TEXT = "Hey! I'm Harris.";
+// How long (ms) the fully-revealed greeting lingers before it slides away.
+const GREETING_HOLD_MS = 1300;
+
 function GridApp({ app, onOpen }) {
   const appVariants = {
     hidden: { y: -100, opacity: 0 },
@@ -39,9 +45,62 @@ function GridApp({ app, onOpen }) {
   );
 }
 
+// iPad-style startup greeting: each word pops in one after another, the phrase
+// lingers, then the whole line slides off to the side and calls onComplete.
+function Greeting({ text, onComplete }) {
+  const words = text.split(' ');
+  const [slideOut, setSlideOut] = useState(false);
+
+  const STAGGER = 0;
+  const container = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: STAGGER, delayChildren: 0.1 },
+    },
+  };
+  const wordVariant = {
+    hidden: { opacity: 0, y: 14, filter: 'blur(6px)' },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { type: 'spring', stiffness: 400, damping: 22 },
+    },
+  };
+
+  useEffect(() => {
+    // Wait for every word to finish popping in, hold, then start the slide-out.
+    const popInMs = 100 + words.length * STAGGER * 1000;
+    const timer = setTimeout(() => setSlideOut(true), popInMs + GREETING_HOLD_MS);
+    return () => clearTimeout(timer);
+  }, [words.length]);
+
+  return (
+    <motion.div
+      className={styles.greeting}
+      variants={container}
+      initial="hidden"
+      animate={slideOut ? { x: '-120%', opacity: 0 } : 'visible'}
+      transition={slideOut ? { duration: 0.55, ease: 'easeIn' } : undefined}
+      onAnimationComplete={() => {
+        if (slideOut) onComplete();
+      }}
+    >
+      {words.map((word, i) => (
+        <motion.span key={i} className={styles.greetingWord} variants={wordVariant}>
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+}
+
 export default function Home() {
   const windowLayerRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Startup sequence: 'spinner' (loading wheel) -> 'greeting' (word-by-word
+  // hello) -> 'done' (desktop revealed). The background stays blurred until done.
+  const [phase, setPhase] = useState('spinner');
+  const isLoading = phase !== 'done';
 
   const [openWindows, setOpenWindows] = useState([]);
   const [minimizedWindows, setMinimizedWindows] = useState([]);
@@ -58,7 +117,8 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
+    // Same spinner duration as before, then hand off to the greeting phase.
+    const timer = setTimeout(() => setPhase('greeting'), 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -105,7 +165,15 @@ export default function Home() {
 
   return (
     <main style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
-      <Background />
+      {/* Background sits in its own layer so it can blur during startup and
+          sharpen once the desktop is revealed, without touching Background. */}
+      <motion.div
+        style={{ position: "fixed", inset: 0, zIndex: 0 }}
+        animate={{ filter: isLoading ? "blur(14px)" : "blur(0px)" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <Background />
+      </motion.div>
 
       <AnimatePresence>
         {isLoading ? (
@@ -114,13 +182,28 @@ export default function Home() {
             className={styles.loaderContainer}
             exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
           >
-            <div className={`${styles.glassEffect} ${styles.loaderLogo}`}>
-               <motion.div
-                 className={styles.spinner}
-                 animate={{ rotate: 360 }}
-                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-               />
-            </div>
+            <AnimatePresence mode="wait">
+              {phase === 'spinner' ? (
+                <motion.div
+                  key="spinner"
+                  className={`${styles.glassEffect} ${styles.loaderLogo}`}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <motion.div
+                    className={styles.spinner}
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                  />
+                </motion.div>
+              ) : (
+                <Greeting
+                  key="greeting"
+                  text={GREETING_TEXT}
+                  onComplete={() => setPhase('done')}
+                />
+              )}
+            </AnimatePresence>
           </motion.div>
         ) : (
           <motion.div key="homescreen" className={styles.screenContainer}>
