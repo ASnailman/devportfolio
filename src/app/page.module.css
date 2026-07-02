@@ -84,8 +84,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(20px, 3vw, 34px);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Profile picture shown on the desktop grid tile (when avatar is set). */
+.gridAvatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 25px;
 }
 
 /* 4. Dock Styles */
@@ -311,4 +319,213 @@
   cursor: nwse-resize;
   background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.3) 50%);
   border-bottom-right-radius: 16px;
+}
+
+/* 7. App content (inside windows) — rendered from src/content/portfolio.js */
+.appContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: white;
+}
+
+/* Profile */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profileAvatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profileInitials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.profileName {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.profileRole {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.profileMeta {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.bioParagraph {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.factList {
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.factRow {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.factLabel {
+  margin: 0;
+  min-width: 120px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.factValue {
+  margin: 0;
+  color: white;
+}
+
+/* Links */
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linkItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  text-decoration: none;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.linkItem:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.linkIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.linkText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.linkLabel {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.linkHandle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.linkArrow {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+}
+
+/* Skills */
+.skillGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skillGroupTitle {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 13px;
+}
+
+/* Projects */
+.projectList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.projectCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  text-decoration: none;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+a.projectCard:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.projectHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.projectName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.projectDesc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.8);
 }

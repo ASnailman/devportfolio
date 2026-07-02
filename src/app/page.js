@@ -4,13 +4,19 @@ import { motion, AnimatePresence } from 'motion/react';
 import Background from '../components/background';
 import Dock from '../components/dock';
 import Window from '../components/window';
+import AppContent from '../components/appContent';
+import { profile } from '../content/portfolio';
 import styles from './page.module.css';
 
+// The apps on the desktop. `icon` is the emoji/text shown on the grid tile —
+// change it to anything you like. Window content is edited in
+// src/content/portfolio.js; add a new app by adding an entry here plus a
+// matching component in src/components/appContent.js.
 const APPS_CONFIG = [
-  { id: 'profile', label: 'Profile', isLarge: true },
-  { id: 'links', label: 'Links', isLarge: false },
-  { id: 'skills', label: 'Skills', isLarge: false },
-  { id: 'projects', label: 'Apps', isLarge: false },
+  { id: 'profile', label: 'Profile', isLarge: true, icon: '👋' },
+  { id: 'links', label: 'Links', isLarge: false, icon: '🔗' },
+  { id: 'skills', label: 'Skills', isLarge: false, icon: '🛠️' },
+  { id: 'projects', label: 'Apps', isLarge: false, icon: '📦' },
 ];
 
 // Startup greeting shown after the loading spinner. Change this string to
@@ -38,7 +44,12 @@ function GridApp({ app, onOpen }) {
       whileTap={{ scale: 0.95 }}
     >
       <div className={styles.glassEffect}>
-         <div className={styles.iconPlaceholder}>{app.isLarge ? 'Pfp' : 'Icon'}</div>
+         {app.id === 'profile' && profile.avatar ? (
+           // eslint-disable-next-line @next/next/no-img-element
+           <img className={styles.gridAvatar} src={profile.avatar} alt={profile.name} />
+         ) : (
+           <div className={styles.iconPlaceholder}>{app.icon}</div>
+         )}
       </div>
       <span className={styles.appLabel}>{app.label}</span>
     </motion.div>
@@ -235,7 +246,9 @@ export default function Home() {
                       handleMinimize={handleMinimizeWindow}
                       handleFocus={handleFocusWindow}
                       constraintsRef={windowLayerRef}
-                  />
+                  >
+                      <AppContent appId={app.id} />
+                  </Window>
               ))}
             </div>
 
