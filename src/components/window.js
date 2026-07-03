@@ -225,7 +225,7 @@ export default function Window({
             <div className={styles.windowContent}>
                 {children ?? (
                     <>
-                        <h2>Welcome to {app.label}</h2>
+                        <h2>Welcome to hi {app.label}</h2>
                         <p>Content goes here.</p>
                     </>
                 )}
