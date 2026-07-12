@@ -2,7 +2,17 @@
 import { motion } from 'motion/react';
 import styles from '../app/page.module.css';
 
-export default function Dock({ openWindows, activeWindow, minimizedWindows = [], handleFocusWindow }) {
+export default function Dock({
+  openWindows,
+  activeWindow,
+  minimizedWindows = [],
+  handleFocusWindow,
+  soundOn,
+  theme,
+  onToggleSound,
+  onToggleTheme,
+  playClick,
+}) {
   return (
     <motion.div
         className={`${styles.glassEffect} ${styles.dock}`}
@@ -19,7 +29,10 @@ export default function Dock({ openWindows, activeWindow, minimizedWindows = [],
               <motion.button
                 key={`dock-${app.id}`}
                 className={`${styles.glassEffect} ${styles.dockIcon} ${isActive ? styles.dockIconActive : ''}`}
-                onClick={() => handleFocusWindow(app.id)}
+                onClick={() => {
+                  handleFocusWindow(app.id);
+                  playClick?.();
+                }}
                 whileHover={{ scale: 1.12, y: -6 }}
                 whileTap={{ scale: 0.94 }}
                 title={app.label}
@@ -35,8 +48,37 @@ export default function Dock({ openWindows, activeWindow, minimizedWindows = [],
 
         <div className={styles.dockSeparator} />
 
-        <div className={`${styles.glassEffect} ${styles.dockUtility}`}></div>
-        <div className={`${styles.glassEffect} ${styles.dockUtility}`}></div>
+        <motion.button
+          className={`${styles.glassEffect} ${styles.dockUtility}`}
+          onClick={() => {
+            onToggleSound();
+            playClick?.();
+          }}
+          whileHover={{ scale: 1.12, y: -6 }}
+          whileTap={{ scale: 0.94 }}
+          title={soundOn ? 'Mute click sounds' : 'Enable click sounds'}
+          aria-label={soundOn ? 'Mute click sounds' : 'Enable click sounds'}
+          aria-pressed={soundOn}
+          style={{ background: 'transparent', border: 'none', color: 'white' }}
+        >
+          {soundOn ? '🔊' : '🔇'}
+        </motion.button>
+
+        <motion.button
+          className={`${styles.glassEffect} ${styles.dockUtility}`}
+          onClick={() => {
+            onToggleTheme();
+            playClick?.();
+          }}
+          whileHover={{ scale: 1.12, y: -6 }}
+          whileTap={{ scale: 0.94 }}
+          title="Swap color palette"
+          aria-label="Swap color palette"
+          aria-pressed={theme === 'red'}
+          style={{ background: 'transparent', border: 'none', color: 'white' }}
+        >
+          🎨
+        </motion.button>
     </motion.div>
   );
 }

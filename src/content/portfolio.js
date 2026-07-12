@@ -36,9 +36,9 @@ export const profile = {
 // ----- Links app -------------------------------------------------------------
 // Add as many as you like. `handle` is optional secondary text.
 export const links = [
-  { label: "GitHub", href: "https://github.com/yourname", handle: "@yourname", icon: "🐙" },
-  { label: "LinkedIn", href: "https://linkedin.com/in/yourname", handle: "in/yourname", icon: "💼" },
-  { label: "Email", href: "mailto:you@example.com", handle: "you@example.com", icon: "✉️" },
+  { label: "GitHub", href: "https://github.com/ASnailman", handle: "@asnailman", icon: "/icons/github.svg" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/harriskhoo/", handle: "in/harriskhoo", icon: "/icons/linkedin.svg" },
+  { label: "Email", href: "mailto:harriskhoo21+portfolio@gmail.com", handle: "", icon: "/icons/mail.svg" },
 ];
 
 // ----- Skills app ------------------------------------------------------------

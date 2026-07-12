@@ -3,10 +3,21 @@
 import { motion } from "motion/react";
 import styles from "./background.module.css";
 
-const colors = [
-    '#2b2d36', '#0a9683', '#09caba', '#00d2ff',
-    '#3b8df0', '#5e6fc8', '#303096'
-];
+const PALETTES = {
+    default: [
+        '#2b2d36', '#0a9683', '#09caba', '#00d2ff',
+        '#3b8df0', '#5e6fc8', '#303096'
+    ],
+    purple: [
+        '#1e1633', // Deep dark violet base
+        '#4c1d95', // Deep purple
+        '#6d28d9', // Violet
+        '#8b5cf6', // Amethyst
+        '#a855f7', // Bright purple
+        '#7c3aed', // Vivid violet
+        '#3b0764'  // Dark grape
+    ],
+};
 
 // const colors = [
 //     '#111827', // Neutral Black Background
@@ -43,9 +54,10 @@ function generateWavePath(baseY, amplitude, phase, width = 1200, height = 800) {
             L 1800 ${height + 200} Z`;
 }
 
-export default function Background() {
+export default function Background({ theme = 'default' }) {
     const width = 1200;
     const height = 800;
+    const colors = PALETTES[theme] ?? PALETTES.default;
 
     return (
         <div className={styles.backgroundWrapper}>

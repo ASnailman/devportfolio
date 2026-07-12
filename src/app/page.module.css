@@ -4,6 +4,7 @@
   z-index: 1;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -60,12 +61,20 @@
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.20);
-  border-radius: 25px; 
+  border-radius: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 85%;
   aspect-ratio: 1 / 1;
+}
+
+/* Scoped to the desktop grid tile so the icon image clips to the rounded
+   box without affecting other .glassEffect surfaces (dock, loader, etc.),
+   whose absolutely-positioned children (like the dock indicator dot) must
+   stay visible outside the box bounds. */
+.appWrapper .glassEffect {
+  overflow: hidden;
 }
 
 .appLabel {
@@ -94,6 +103,15 @@
   height: 100%;
   object-fit: cover;
   border-radius: 25px;
+}
+
+/* Full-bleed app icon image shown on every desktop grid tile. */
+.gridIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 25px;
+  display: block;
 }
 
 /* 4. Dock Styles */
@@ -238,6 +256,9 @@
 
 .windowContainer {
   /* Size and position come from inline styles (motion x/y + size state). */
+  /* Dark, mostly-opaque base so the focused window is the readable surface
+     (overrides the light .glassEffect tint; keeps its backdrop blur). */
+  background: rgba(20, 20, 28, 0.85);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -252,6 +273,24 @@
 .windowActive {
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+}
+
+/* Mobile "sheet": the window is applied `.windowMobile` (by Window.js when the
+   viewport is < 768px) and becomes a full-screen panel anchored below the
+   status bar, leaving the dock tappable at the bottom. Size/position here
+   deliberately override the inline width/height and the .glassEffect defaults,
+   since on mobile the component sets neither. Translate (slide up/down) is
+   driven by Framer Motion for open/minimize. */
+.windowMobile {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: max(env(safe-area-inset-top), 8px);
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  border-radius: 20px 20px 0 0;
 }
 
 .windowHeader {
@@ -432,8 +471,10 @@
 }
 
 .linkIcon {
-  font-size: 22px;
-  line-height: 1;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .linkText {
@@ -528,4 +569,129 @@ a.projectCard:hover {
   font-size: 14px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* 8. Theme overrides — [data-theme='purple'] is set on <main> by the dock
+   palette toggle. Background.js swaps its own wave colors separately. */
+:global([data-theme='purple']) .glassEffect {
+  background: rgba(168, 85, 247, 0.14);
+  border-color: rgba(190, 130, 255, 0.22);
+}
+
+:global([data-theme='purple']) .windowContainer {
+  background: rgba(26, 18, 40, 0.85);
+}
+
+:global([data-theme='purple']) .windowActive {
+  border-color: rgba(190, 130, 255, 0.4);
+}
+
+:global([data-theme='purple']) .dockIconActive {
+  background: rgba(168, 85, 247, 0.28);
+}
+
+:global([data-theme='purple']) .dockIndicator {
+  background: rgba(200, 150, 255, 0.9);
+}
+
+/* 9. Mobile layout (phones / small tablets in portrait, < 768px).
+   Windows switch to full-screen sheets (see `.windowMobile` above); here we
+   tune the desktop grid and dock so they stay comfortably tap-able and never
+   overflow narrow screens. Everything is scoped to this media query so the
+   desktop experience is untouched. */
+@media (max-width: 767px) {
+  .screenContainer {
+    /* Respect notches/home indicators; stack from the top and let the dock
+       pin to the bottom via margin-top:auto. */
+    padding: max(20px, env(safe-area-inset-top)) 16px
+      calc(12px + env(safe-area-inset-bottom));
+    justify-content: flex-start;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  /* Compact 2×2 grid of small fixed-size tiles, centered. */
+  .widgetGrid {
+    grid-template-columns: repeat(2, 104px);
+    justify-content: center;
+    gap: 22px 20px;
+    max-width: 100%;
+    margin-top: 4px;
+  }
+
+  /* Tiles fill their (small) fixed column. */
+  .appWrapper .glassEffect {
+    width: 100%;
+  }
+
+  /* Profile is a normal square tile (not a full-width banner), so it stays
+     small and its picture isn't stretched/cropped into a letterbox. */
+  .profileWrapper {
+    grid-column: span 1;
+  }
+
+  .profileWrapper .glassEffect {
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+
+  /* Bias the headshot toward the top so the face shows instead of being
+     cropped to the chest. */
+  .profileWrapper .gridIcon {
+    object-position: center top;
+  }
+
+  .appLabel {
+    font-size: 13px;
+  }
+
+  /* Compact horizontal pill pinned to the bottom. `aspect-ratio: auto` is
+     essential here: the shared .glassEffect sets aspect-ratio:1/1, which — with
+     an auto height — would blow the dock up into a large square. */
+  .dock {
+    margin-top: auto;
+    position: sticky;
+    bottom: 0;
+    aspect-ratio: auto;
+    width: fit-content;
+    max-width: calc(100vw - 20px);
+    height: 68px;
+    gap: 6px;
+    padding: 8px 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .dockIcon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+  }
+
+  .dockIconText {
+    font-size: 10px;
+    max-width: 42px;
+  }
+
+  .dockUtility {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .dockSeparator {
+    height: 30px;
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+
+  /* Slightly tighter window chrome/content on small screens. */
+  .windowContent {
+    padding: 16px;
+  }
+
+  .windowHeader {
+    height: 44px;
+  }
 }

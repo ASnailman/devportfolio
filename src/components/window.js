@@ -25,6 +25,7 @@ export default function Window({
     handleMinimize,
     handleFocus,
     constraintsRef,
+    isMobile = false,
     children,
 }) {
     const dragControls = useDragControls();
@@ -139,8 +140,11 @@ export default function Window({
     };
 
     // Keep windows on-screen (and maximized ones full-size) when the browser
-    // viewport changes, so they never become unrecoverable.
+    // viewport changes, so they never become unrecoverable. On mobile the
+    // window is a CSS-driven full-screen sheet, so none of this drag/clamp math
+    // applies — bail out early.
     useEffect(() => {
+        if (isMobile) return;
         const onWindowResize = () => {
             if (isMaximized) {
                 setSize({ width: window.innerWidth, height: window.innerHeight });
@@ -153,42 +157,61 @@ export default function Window({
         window.addEventListener('resize', onWindowResize);
         return () => window.removeEventListener('resize', onWindowResize);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMaximized, size.width, size.height]);
+    }, [isMaximized, size.width, size.height, isMobile]);
+
+    // On mobile the window is a full-screen sheet: size/position come from the
+    // `.windowMobile` CSS class, drag & resize are disabled, and open/minimize
+    // is a slide up/down from the bottom instead of the desktop scale/fade.
+    const containerStyle = isMobile
+        ? { zIndex, pointerEvents: isMinimized ? 'none' : 'auto' }
+        : {
+              x,
+              y,
+              width: size.width,
+              height: size.height,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex,
+              pointerEvents: isMinimized ? 'none' : 'auto',
+          };
+
+    const containerInitial = isMobile
+        ? { opacity: 0, y: '100%' }
+        : { opacity: 0, scale: 0.85 };
+
+    const containerAnimate = isMobile
+        ? { opacity: isMinimized ? 0 : 1, y: isMinimized ? '100%' : '0%' }
+        : { opacity: isMinimized ? 0 : 1, scale: isMinimized ? 0.85 : 1 };
+
+    // Desktop-only drag wiring; on mobile the sheet is fixed in place.
+    const dragProps = isMobile
+        ? {}
+        : {
+              drag: true,
+              dragControls,
+              dragListener: false,
+              dragConstraints: constraintsRef,
+              dragElastic: 0,
+              dragMomentum: false,
+              onDragEnd: handleDragEnd,
+          };
 
     return (
         <motion.div
-            className={`${styles.glassEffect} ${styles.windowContainer} ${isActive ? styles.windowActive : ''}`}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{
-                opacity: isMinimized ? 0 : 1,
-                scale: isMinimized ? 0.85 : 1,
-            }}
+            className={`${styles.glassEffect} ${styles.windowContainer} ${isMobile ? styles.windowMobile : ''} ${isActive ? styles.windowActive : ''}`}
+            initial={containerInitial}
+            animate={containerAnimate}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            style={{
-                x,
-                y,
-                width: size.width,
-                height: size.height,
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                zIndex,
-                pointerEvents: isMinimized ? 'none' : 'auto',
-            }}
+            style={containerStyle}
             onPointerDownCapture={() => handleFocus(app.id)}
-            drag
-            dragControls={dragControls}
-            dragListener={false}
-            dragConstraints={constraintsRef}
-            dragElastic={0}
-            dragMomentum={false}
-            onDragEnd={handleDragEnd}
+            {...dragProps}
         >
             <div
                 className={styles.windowHeader}
-                onPointerDown={(e) => dragControls.start(e)}
-                onDoubleClick={toggleMaximize}
-                style={{ touchAction: 'none' }}
+                onPointerDown={isMobile ? undefined : (e) => dragControls.start(e)}
+                onDoubleClick={isMobile ? undefined : toggleMaximize}
+                style={{ touchAction: isMobile ? 'auto' : 'none' }}
             >
                 <div className={styles.windowControls}>
                     <button
@@ -207,17 +230,19 @@ export default function Window({
                     >
                         —
                     </button>
-                    <button
-                        className={styles.controlBtn}
-                        aria-label={isMaximized ? 'Restore window' : 'Maximize window'}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            toggleMaximize();
-                        }}
-                    >
-                        ◻
-                    </button>
+                    {!isMobile && (
+                        <button
+                            className={styles.controlBtn}
+                            aria-label={isMaximized ? 'Restore window' : 'Maximize window'}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMaximize();
+                            }}
+                        >
+                            ◻
+                        </button>
+                    )}
                 </div>
                 <span className={styles.windowTitle}>{app.label}</span>
             </div>
@@ -231,11 +256,13 @@ export default function Window({
                 )}
             </div>
 
-            <div
-                className={styles.resizeHandle}
-                onPointerDown={handleResize}
-                style={{ touchAction: 'none' }}
-            />
+            {!isMobile && (
+                <div
+                    className={styles.resizeHandle}
+                    onPointerDown={handleResize}
+                    style={{ touchAction: 'none' }}
+                />
+            )}
         </motion.div>
     );
 }

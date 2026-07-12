@@ -9,9 +9,11 @@ html,
 body {
   max-width: 100vw;
   height: 100vh;
+  height: 100dvh; /* Track the *visible* viewport on mobile (dynamic toolbars) */
   overflow: hidden; /* Prevents scrollbars from appearing */
   background-color: #1a1a24; /* Fallback dark color matching the wave */
-  
+  overscroll-behavior: none; /* No rubber-band/pull-to-refresh on touch */
+
   /* Native Apple font stack for that iOS feel */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: white; /* Default text color for the dark theme */
@@ -20,4 +22,11 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Faster, cleaner taps on touch: removes the 300ms delay and the grey tap
+   highlight so buttons/tiles feel native. */
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }

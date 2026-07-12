@@ -65,7 +65,10 @@ function LinksApp() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {link.icon && <span className={styles.linkIcon}>{link.icon}</span>}
+            {link.icon && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.linkIcon} src={link.icon} alt="" aria-hidden="true" />
+            )}
             <span className={styles.linkText}>
               <span className={styles.linkLabel}>{link.label}</span>
               {link.handle && <span className={styles.linkHandle}>{link.handle}</span>}
