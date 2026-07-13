@@ -17,19 +17,17 @@
 // ----- Profile app -----------------------------------------------------------
 export const profile = {
   name: "Harris",
-  role: "Developer & Penguin Enthusiast",
+  role: "CS Student Attending University of Illinois Urbana-Champaign",
   avatar: "",              // e.g. "/me.jpg" (file lives in public/). "" = initials.
   location: "",            // e.g. "Toronto, Canada" — leave "" to hide.
   // Each string is its own paragraph.
   bio: [
-    "Hey! I'm Harris. This is my little corner of the internet, styled like a desktop OS.",
-    "Replace this text with a few sentences about who you are, what you build, and what you're into.",
+    "Hey! I'm Harris. Welcome to my devportfolio. My favorite device of all time is the iPad mini, so I decided to model the design around that. This portfolio has yet to be completed, but it should be done soon!",
   ],
   // Quick key/value facts shown as a small list. Add or remove freely.
   facts: [
     { label: "Currently", value: "Building this portfolio" },
-    { label: "Favorite animal", value: "Penguins 🐧" },
-    { label: "Email", value: "you@example.com" },
+    { label: "Favorite Animal", value: "Penguins" },
   ],
 };
 
@@ -44,24 +42,25 @@ export const links = [
 // ----- Skills app ------------------------------------------------------------
 // Grouped skill chips. Add/remove groups and items as you wish.
 export const skills = [
-  { group: "Languages", items: ["JavaScript", "TypeScript", "Python"] },
-  { group: "Frameworks", items: ["React", "Next.js", "Node.js"] },
-  { group: "Tools", items: ["Git", "Figma", "VS Code"] },
+  { group: "Languages", items: [""] },
+  { group: "Frameworks", items: [""] },
+  { group: "Tools", items: [""] },
 ];
 
 // ----- Apps / Projects app ---------------------------------------------------
 // Each project becomes a card. `href` and `tags` are optional.
 export const projects = [
   {
-    name: "This Portfolio",
+    name: "DevPortfolio",
     description: "An interactive, OS-style developer portfolio built with Next.js and Framer Motion.",
     href: "",
     tags: ["Next.js", "React", "Framer Motion"],
   },
+  ,
   {
-    name: "Your Next Project",
-    description: "A short description of what it does and why it's cool. Add a link and tags.",
+    name: "Temp",
+    description: "I haven't finished updating the website, but more projects will be added soon!",
     href: "",
-    tags: ["Add", "Some", "Tags"],
+    tags: [""],
   },
 ];

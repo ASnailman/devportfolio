@@ -58,36 +58,71 @@ function playBuffer(ctx, buffer) {
   source.start(ctx.currentTime);
 }
 
-// Fallback: a synthesized physical click. A real click is a broadband impulse,
-// not a tone — so we make a brief burst of white noise with a fast decay,
-// muffled through a low-pass filter for a natural "tick/clack".
+// Fallback: a synthesized soft "thock" — modeled on a lubed linear (red) switch
+// bottoming out on a custom keyboard. It's deliberately low and muffled (no
+// bright, harsh high-frequency tick): a short low-frequency body resonance for
+// the deep "thock", plus a very quiet, soft transient for the plastic contact,
+// both rounded off through a gentle low-pass. Soft attacks avoid onset clicks.
 function playSynthClick(ctx) {
-  const duration = 0.03; // ~30ms — sharp and short
-  const frameCount = Math.max(1, Math.floor(ctx.sampleRate * duration));
-  const buffer = ctx.createBuffer(1, frameCount, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < frameCount; i++) {
-    const t = i / frameCount;
-    // Fast cubic decay so the noise collapses into a click, not a hiss.
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3);
+  const now = ctx.currentTime;
+
+  // Master chain: everything runs through a gentle low-pass so nothing is sharp.
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.6, now);
+
+  const lowpass = ctx.createBiquadFilter();
+  lowpass.type = 'lowpass';
+  lowpass.frequency.setValueAtTime(3600, now); // soft but with a bit of click
+  lowpass.Q.setValueAtTime(0.7, now);
+
+  master.connect(lowpass);
+  lowpass.connect(ctx.destination);
+
+  // 1) Body "thock": a low sine that drops slightly in pitch and decays fast.
+  const body = ctx.createOscillator();
+  body.type = 'sine';
+  body.frequency.setValueAtTime(185, now);
+  body.frequency.exponentialRampToValueAtTime(120, now + 0.06);
+
+  const bodyGain = ctx.createGain();
+  bodyGain.gain.setValueAtTime(0.0001, now);
+  bodyGain.gain.linearRampToValueAtTime(0.9, now + 0.004); // soft 4ms attack
+  bodyGain.gain.exponentialRampToValueAtTime(0.0008, now + 0.075);
+
+  body.connect(bodyGain);
+  bodyGain.connect(master);
+  body.start(now);
+  body.stop(now + 0.09);
+
+  // 2) Contact transient: a very short, quiet noise burst, band-limited so it
+  //    reads as a soft "thd" rather than a bright click.
+  const noiseDur = 0.018;
+  const frames = Math.max(1, Math.floor(ctx.sampleRate * noiseDur));
+  const noiseBuffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < frames; i++) {
+    const t = i / frames;
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2);
   }
 
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
+  const noise = ctx.createBufferSource();
+  noise.buffer = noiseBuffer;
 
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(3000, ctx.currentTime);
+  const bandpass = ctx.createBiquadFilter();
+  bandpass.type = 'bandpass';
+  bandpass.frequency.setValueAtTime(2700, now); // higher = more audible "click"
+  bandpass.Q.setValueAtTime(0.8, now);
 
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.45, ctx.currentTime);
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, now);
+  noiseGain.gain.linearRampToValueAtTime(0.7, now + 0.001); // snappier, louder tick
+  noiseGain.gain.exponentialRampToValueAtTime(0.0008, now + 0.025);
 
-  source.connect(filter);
-  filter.connect(gain);
-  gain.connect(ctx.destination);
-
-  source.start(ctx.currentTime);
-  // Buffer stops itself at end-of-data; no manual stop() needed.
+  noise.connect(bandpass);
+  bandpass.connect(noiseGain);
+  noiseGain.connect(master);
+  noise.start(now);
+  // Sources free themselves once stopped / drained; no manual cleanup needed.
 }
 
 export function playClick() {

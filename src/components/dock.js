@@ -59,9 +59,16 @@ export default function Dock({
           title={soundOn ? 'Mute click sounds' : 'Enable click sounds'}
           aria-label={soundOn ? 'Mute click sounds' : 'Enable click sounds'}
           aria-pressed={soundOn}
-          style={{ background: 'transparent', border: 'none', color: 'white' }}
+          style={{ background: 'transparent', border: 'none' }}
         >
-          {soundOn ? '🔊' : '🔇'}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={styles.dockUtilityIcon}
+            src={soundOn ? '/icons/sound-on.svg' : '/icons/sound-off.svg'}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+          />
         </motion.button>
 
         <motion.button
@@ -74,10 +81,17 @@ export default function Dock({
           whileTap={{ scale: 0.94 }}
           title="Swap color palette"
           aria-label="Swap color palette"
-          aria-pressed={theme === 'red'}
-          style={{ background: 'transparent', border: 'none', color: 'white' }}
+          aria-pressed={theme === 'purple'}
+          style={{ background: 'transparent', border: 'none' }}
         >
-          🎨
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={styles.dockUtilityIcon}
+            src="/icons/palette.svg"
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+          />
         </motion.button>
     </motion.div>
   );
