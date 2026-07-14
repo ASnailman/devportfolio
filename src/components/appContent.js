@@ -6,6 +6,7 @@
 
 import styles from '../app/page.module.css';
 import { profile, links, skills, projects } from '../content/portfolio';
+import { playOpen } from '../lib/sound';
 
 function initialsOf(name) {
   return name
@@ -64,6 +65,7 @@ function LinksApp() {
             href={link.href}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => playOpen()}
           >
             {link.icon && (
               // eslint-disable-next-line @next/next/no-img-element

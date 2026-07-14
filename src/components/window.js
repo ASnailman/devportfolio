@@ -24,7 +24,6 @@ export default function Window({
     handleClose,
     handleMinimize,
     handleFocus,
-    constraintsRef,
     isMobile = false,
     children,
 }) {
@@ -43,6 +42,15 @@ export default function Window({
     // Size is plain state, applied via `style` (not `animate`) so dragging the
     // resize handle is a direct 1:1 movement with no spring lag / jerk.
     const [size, setSize] = useState({ width: 640, height: 440 });
+
+    // Tracked so dragConstraints can be recomputed as a plain object instead
+    // of a ref — ref-based constraints cache a stale measurement after the
+    // imperative `animate(x/y, ...)` calls below, causing drag to "stick".
+    const [viewport, setViewport] = useState(() =>
+        typeof window === 'undefined'
+            ? { width: 0, height: 0 }
+            : { width: window.innerWidth, height: window.innerHeight }
+    );
 
     // Remembers the pre-maximize geometry so the maximize button can toggle.
     const [isMaximized, setIsMaximized] = useState(false);
@@ -146,6 +154,7 @@ export default function Window({
     useEffect(() => {
         if (isMobile) return;
         const onWindowResize = () => {
+            setViewport({ width: window.innerWidth, height: window.innerHeight });
             if (isMaximized) {
                 setSize({ width: window.innerWidth, height: window.innerHeight });
                 animate(x, 0, SPRING);
@@ -184,6 +193,15 @@ export default function Window({
         ? { opacity: isMinimized ? 0 : 1, y: isMinimized ? '100%' : '0%' }
         : { opacity: isMinimized ? 0 : 1, scale: isMinimized ? 0.85 : 1 };
 
+    // Plain-object constraints (not a ref) so framer re-resolves them fresh on
+    // every drag start instead of caching a stale measurement.
+    const dragConstraints = {
+        left: Math.min(0, viewport.width - size.width),
+        right: Math.max(0, viewport.width - size.width),
+        top: Math.min(0, viewport.height - size.height),
+        bottom: Math.max(0, viewport.height - size.height),
+    };
+
     // Desktop-only drag wiring; on mobile the sheet is fixed in place.
     const dragProps = isMobile
         ? {}
@@ -191,7 +209,7 @@ export default function Window({
               drag: true,
               dragControls,
               dragListener: false,
-              dragConstraints: constraintsRef,
+              dragConstraints,
               dragElastic: 0,
               dragMomentum: false,
               onDragEnd: handleDragEnd,

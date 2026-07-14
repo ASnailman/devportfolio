@@ -1,23 +1,38 @@
-// Click sound for dock/UI feedback.
+// UI sound effects for dock/desktop feedback.
 //
-// Plays a custom click sound from `public/sounds/click.mp3` if you've added one
-// (drop any .mp3 there — no code change needed). Until that file exists (or if
-// it fails to load), it falls back to a synthesized click so the UI is never
-// silent. The mp3 is fetched once and decoded into an AudioBuffer so repeated
-// clicks are low-latency and can overlap.
+// Two distinct event sounds are served from public/sounds/ (swap the files
+// or the paths below to change them):
+//   - open  : opening an app / clicking a link
+//   - close : closing a window (the X button)
 //
-// A single AudioContext is created lazily on first use, because browsers block
-// audio until a user gesture, so we can't create it at module load time.
+// Each mp3 is fetched once and decoded into an AudioBuffer so repeated plays
+// are low-latency and can overlap. A single AudioContext is created lazily on
+// first use, because browsers block audio until a user gesture — the context
+// only unlocks after a real gesture (click/tap).
 
-// Path to an optional user-supplied click sound (served from /public).
-const CLICK_SOUND_URL = '/sounds/click.mp3';
+const SOUND_URLS = {
+  open: '/sounds/zapsplat_multimedia_button_press_plastic_click_002_36869.mp3',
+  close: '/sounds/zapsplat_multimedia_button_click_bright_003_92100.mp3',
+};
+
+// Per-event default volume (0..1).
+const DEFAULT_VOLUME = {
+  open: 0.9,
+  close: 0.9,
+};
 
 let audioCtx = null;
+let enabled = true;
 
-// Decoded mp3 cache + load state so we only fetch/decode once.
-let clickBuffer = null;
-let clickBufferPromise = null;
-let clickBufferFailed = false;
+// Per-name decode cache + load state so each file is fetched/decoded once.
+const buffers = {};
+const failed = {};
+const promises = {};
+
+// Toggled from the app (mirrors the dock's sound on/off state).
+export function setSoundEnabled(value) {
+  enabled = !!value;
+}
 
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
@@ -29,115 +44,61 @@ function getAudioContext() {
   return audioCtx;
 }
 
-// Fetch + decode the mp3 once. On any failure (e.g. file not present yet) we
-// mark it failed so we stop retrying and use the synth fallback instead.
-function loadClickBuffer(ctx) {
-  if (clickBuffer || clickBufferFailed || clickBufferPromise) return;
-  clickBufferPromise = fetch(CLICK_SOUND_URL)
+// Fetch + decode one sound. On any failure (e.g. missing file) it's marked
+// failed so we stop retrying and simply stay silent for that event.
+function loadBuffer(ctx, name) {
+  if (buffers[name] || failed[name] || promises[name]) return;
+  const url = SOUND_URLS[name];
+  if (!url) {
+    failed[name] = true;
+    return;
+  }
+  promises[name] = fetch(url)
     .then((res) => {
-      if (!res.ok) throw new Error(`click sound HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`sound "${name}" HTTP ${res.status}`);
       return res.arrayBuffer();
     })
     .then((arrayBuffer) => ctx.decodeAudioData(arrayBuffer))
     .then((decoded) => {
-      clickBuffer = decoded;
+      buffers[name] = decoded;
     })
     .catch(() => {
-      clickBufferFailed = true;
+      failed[name] = true;
     });
 }
 
-// Plays the decoded mp3 buffer.
-function playBuffer(ctx, buffer) {
+// Warm the cache for every event so the first of each kind is ready.
+function preloadAll(ctx) {
+  for (const name of Object.keys(SOUND_URLS)) loadBuffer(ctx, name);
+}
+
+function playBuffer(ctx, buffer, volume) {
   const source = ctx.createBufferSource();
   source.buffer = buffer;
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.9, ctx.currentTime);
+  gain.gain.setValueAtTime(volume, ctx.currentTime);
   source.connect(gain);
   gain.connect(ctx.destination);
   source.start(ctx.currentTime);
 }
 
-// Fallback: a synthesized soft "thock" — modeled on a lubed linear (red) switch
-// bottoming out on a custom keyboard. It's deliberately low and muffled (no
-// bright, harsh high-frequency tick): a short low-frequency body resonance for
-// the deep "thock", plus a very quiet, soft transient for the plastic contact,
-// both rounded off through a gentle low-pass. Soft attacks avoid onset clicks.
-function playSynthClick(ctx) {
-  const now = ctx.currentTime;
-
-  // Master chain: everything runs through a gentle low-pass so nothing is sharp.
-  const master = ctx.createGain();
-  master.gain.setValueAtTime(0.6, now);
-
-  const lowpass = ctx.createBiquadFilter();
-  lowpass.type = 'lowpass';
-  lowpass.frequency.setValueAtTime(3600, now); // soft but with a bit of click
-  lowpass.Q.setValueAtTime(0.7, now);
-
-  master.connect(lowpass);
-  lowpass.connect(ctx.destination);
-
-  // 1) Body "thock": a low sine that drops slightly in pitch and decays fast.
-  const body = ctx.createOscillator();
-  body.type = 'sine';
-  body.frequency.setValueAtTime(185, now);
-  body.frequency.exponentialRampToValueAtTime(120, now + 0.06);
-
-  const bodyGain = ctx.createGain();
-  bodyGain.gain.setValueAtTime(0.0001, now);
-  bodyGain.gain.linearRampToValueAtTime(0.9, now + 0.004); // soft 4ms attack
-  bodyGain.gain.exponentialRampToValueAtTime(0.0008, now + 0.075);
-
-  body.connect(bodyGain);
-  bodyGain.connect(master);
-  body.start(now);
-  body.stop(now + 0.09);
-
-  // 2) Contact transient: a very short, quiet noise burst, band-limited so it
-  //    reads as a soft "thd" rather than a bright click.
-  const noiseDur = 0.018;
-  const frames = Math.max(1, Math.floor(ctx.sampleRate * noiseDur));
-  const noiseBuffer = ctx.createBuffer(1, frames, ctx.sampleRate);
-  const data = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < frames; i++) {
-    const t = i / frames;
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2);
-  }
-
-  const noise = ctx.createBufferSource();
-  noise.buffer = noiseBuffer;
-
-  const bandpass = ctx.createBiquadFilter();
-  bandpass.type = 'bandpass';
-  bandpass.frequency.setValueAtTime(2700, now); // higher = more audible "click"
-  bandpass.Q.setValueAtTime(0.8, now);
-
-  const noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(0.0001, now);
-  noiseGain.gain.linearRampToValueAtTime(0.7, now + 0.001); // snappier, louder tick
-  noiseGain.gain.exponentialRampToValueAtTime(0.0008, now + 0.025);
-
-  noise.connect(bandpass);
-  bandpass.connect(noiseGain);
-  noiseGain.connect(master);
-  noise.start(now);
-  // Sources free themselves once stopped / drained; no manual cleanup needed.
-}
-
-export function playClick() {
-  if (typeof window === 'undefined') return;
+// Plays a named event sound, honoring the on/off toggle.
+export function playSound(name, options = {}) {
+  if (typeof window === 'undefined' || !enabled) return;
 
   const ctx = getAudioContext();
   if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume();
 
-  // Kick off the mp3 load on first use; plays synth until it's ready.
-  if (!clickBuffer && !clickBufferFailed) loadClickBuffer(ctx);
+  // First call unlocks the context — warm all buffers so later events are ready.
+  preloadAll(ctx);
 
-  if (clickBuffer) {
-    playBuffer(ctx, clickBuffer);
-  } else {
-    playSynthClick(ctx);
-  }
+  const buffer = buffers[name];
+  if (!buffer) return; // not decoded yet (or failed) — stay silent this time
+
+  const volume = options.volume ?? DEFAULT_VOLUME[name] ?? 0.9;
+  playBuffer(ctx, buffer, volume);
 }
+
+export const playOpen = () => playSound('open');
+export const playClose = () => playSound('close');

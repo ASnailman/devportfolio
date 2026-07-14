@@ -578,27 +578,87 @@ a.projectCard:hover {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* 8. Theme overrides — [data-theme='purple'] is set on <main> by the dock
-   palette toggle. Background.js swaps its own wave colors separately. */
-:global([data-theme='purple']) .glassEffect {
-  background: rgba(168, 85, 247, 0.14);
-  border-color: rgba(190, 130, 255, 0.22);
+/* 8. Theme accents — the dock color picker sets [data-theme] on <main>, and
+   Background.js swaps its wave colors to match. Each theme defines an --accent
+   (R, G, B) that tints the glass, active window, and dock highlights. The
+   `default` accent is neutral white so the default look is unchanged. */
+:global([data-theme]) { --accent: 255, 255, 255; }
+:global([data-theme='default']) { --accent: 255, 255, 255; }
+:global([data-theme='red']) { --accent: 255, 90, 90; }
+:global([data-theme='amber']) { --accent: 255, 190, 60; }
+:global([data-theme='green']) { --accent: 120, 220, 110; }
+:global([data-theme='cyan']) { --accent: 40, 205, 225; }
+:global([data-theme='blue']) { --accent: 95, 145, 240; }
+:global([data-theme='violet']) { --accent: 190, 100, 240; }
+
+:global([data-theme]) .glassEffect {
+  background: rgba(var(--accent), 0.12);
+  border-color: rgba(var(--accent), 0.16);
 }
 
-:global([data-theme='purple']) .windowContainer {
-  background: rgba(26, 18, 40, 0.85);
+/* Windows keep a dark, readable base regardless of theme (higher specificity
+   than the tinted .glassEffect above so it always wins). */
+:global([data-theme]) .windowContainer {
+  background: rgba(20, 20, 28, 0.85);
 }
 
-:global([data-theme='purple']) .windowActive {
-  border-color: rgba(190, 130, 255, 0.4);
+:global([data-theme]) .windowActive {
+  border-color: rgba(var(--accent), 0.4);
 }
 
-:global([data-theme='purple']) .dockIconActive {
-  background: rgba(168, 85, 247, 0.28);
+:global([data-theme]) .dockIconActive {
+  background: rgba(var(--accent), 0.26);
 }
 
-:global([data-theme='purple']) .dockIndicator {
-  background: rgba(200, 150, 255, 0.9);
+:global([data-theme]) .dockIndicator {
+  background: rgba(var(--accent), 0.9);
+}
+
+/* Palette picker popover. It is portaled to <body> and positioned with fixed
+   left/bottom (set inline by dock.js) so it is centered over the color button,
+   clamped on-screen, and never clipped by the dock's overflow/transform. */
+.colorBar {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: rgba(20, 20, 28, 0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Downward tail pointing at the color button. A rotated square whose two
+   lower edges carry the bar's border, so the outline continues into the arrow.
+   Its `left` is set inline so it stays over the button even when the bar is
+   clamped away from center. */
+.colorBarArrow {
+  position: absolute;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: rgba(20, 20, 28, 0.82);
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom-right-radius: 3px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.colorSwatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.colorSwatchActive {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* 9. Mobile layout (phones / small tablets in portrait, < 768px).

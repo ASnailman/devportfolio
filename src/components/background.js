@@ -3,41 +3,39 @@
 import { motion } from "motion/react";
 import styles from "./background.module.css";
 
+// One wave palette per theme. Keys match COLOR_OPTIONS in src/components/dock.js
+// and the [data-theme] accents in src/app/page.module.css. Each is a layered
+// dark→bright gradient in that hue (7 stops, one per animated wave).
 const PALETTES = {
     default: [
         '#2b2d36', '#0a9683', '#09caba', '#00d2ff',
         '#3b8df0', '#5e6fc8', '#303096'
     ],
-    purple: [
-        '#1e1633', // Deep dark violet base
-        '#4c1d95', // Deep purple
-        '#6d28d9', // Violet
-        '#8b5cf6', // Amethyst
-        '#a855f7', // Bright purple
-        '#7c3aed', // Vivid violet
-        '#3b0764'  // Dark grape
+    red: [
+        '#2a1113', '#7a1420', '#b21e2b', '#e23b3b',
+        '#ff5a5a', '#c8384a', '#5c1622'
+    ],
+    amber: [
+        '#2a1e0a', '#7a4b12', '#c07d16', '#f0a91e',
+        '#ffd23f', '#e0952a', '#5c3a12'
+    ],
+    green: [
+        '#0f2417', '#155f34', '#1f8f4a', '#37b95a',
+        '#7ed957', '#2e9d55', '#123a24'
+    ],
+    cyan: [
+        '#0a2430', '#0f5f74', '#159fb8', '#22c1e0',
+        '#5fe0ef', '#1f9fc0', '#123a44'
+    ],
+    blue: [
+        '#141a33', '#1d3a86', '#2d5ad9', '#4b7bec',
+        '#5f8def', '#3b6bd0', '#101d44'
+    ],
+    violet: [
+        '#1e1633', '#4c1d95', '#6d28d9', '#8b5cf6',
+        '#c74fe0', '#7c3aed', '#3b0764'
     ],
 };
-
-// const colors = [
-//     '#111827', // Neutral Black Background
-//     '#1f2937', // Section Background
-//     '#10b981', // Emerald Accent
-//     '#34d399', // Bright Mint (Call to action)
-//     '#9ca3af', // Muted Gray Text
-//     '#f9fafb4c', // Off-white Text
-//     '#374151'  // subtle UI Divider
-// ];
-
-// const colors = [
-//     '#0a0a0a', // True Dark Background
-//     '#171717', // Secondary Background
-//     '#6365f18f', // Indigo Accent
-//     '#8a5cf6c0', // Violet Highlight
-//     '#a3a3a3', // Muted Text
-//     '#ffffff80', // Pure White Text
-//     '#262626'  // Dark Border
-// ];
 
 // Bezier Math Logic
 function generateWavePath(baseY, amplitude, phase, width = 1200, height = 800) {

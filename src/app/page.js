@@ -1,12 +1,12 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Background from '../components/background';
 import Dock from '../components/dock';
-import Window from '../components/window';
+import Window from '../components/Window';
 import AppContent from '../components/appContent';
 import { profile } from '../content/portfolio';
-import { playClick as playClickSound } from '../lib/sound';
+import { setSoundEnabled, playOpen, playClose } from '../lib/sound';
 import { useIsMobile } from '../lib/useIsMobile';
 import styles from './page.module.css';
 
@@ -112,7 +112,6 @@ function Greeting({ text, onComplete }) {
 }
 
 export default function Home() {
-  const windowLayerRef = useRef(null);
   // Below 768px we switch windows to touch-friendly full-screen sheets instead
   // of draggable/resizable desktop windows (see src/lib/useIsMobile.js).
   const isMobile = useIsMobile();
@@ -129,12 +128,12 @@ export default function Home() {
   const [soundOn, setSoundOn] = useState(true);
   const [theme, setTheme] = useState('default');
 
-  const playClick = useCallback(() => {
-    if (soundOn) playClickSound();
+  // Mirror the sound toggle into the sound module so every play() respects it.
+  useEffect(() => {
+    setSoundEnabled(soundOn);
   }, [soundOn]);
 
   const toggleSound = () => setSoundOn((s) => !s);
-  const toggleTheme = () => setTheme((t) => (t === 'purple' ? 'default' : 'purple'));
 
   // Incrementing z-index per focus, so the most-recently-touched window is
   // always on top and the prior stacking order is preserved underneath.
@@ -153,7 +152,7 @@ export default function Home() {
   }, []);
 
   const handleOpenApp = (app) => {
-    playClick();
+    playOpen();
     setOpenWindows((prev) =>
       prev.find((w) => w.id === app.id) ? prev : [...prev, app]
     );
@@ -164,6 +163,7 @@ export default function Home() {
 
   const handleCloseWindow = (appId, event) => {
     event?.stopPropagation();
+    playClose();
     setOpenWindows((prev) => prev.filter((w) => w.id !== appId));
     setMinimizedWindows((prev) => prev.filter((id) => id !== appId));
     setActiveWindow((prev) => (prev === appId ? null : prev));
@@ -253,11 +253,11 @@ export default function Home() {
                 ))}
             </motion.div>
 
-            {/* Dedicated full-viewport layer: it is the drag-constraint boundary
-                AND the positioning context for windows, so window (0,0) maps to
-                the viewport's top-left exactly. pointer-events:none lets clicks
-                fall through to the grid where no window covers it. */}
-            <div ref={windowLayerRef} className={styles.windowLayer}>
+            {/* Dedicated full-viewport layer: it is the positioning context for
+                windows, so window (0,0) maps to the viewport's top-left exactly.
+                pointer-events:none lets clicks fall through to the grid where no
+                window covers it. */}
+            <div className={styles.windowLayer}>
               {openWindows.map((app) => (
                   <Window
                       key={`window-${app.id}`}
@@ -268,7 +268,6 @@ export default function Home() {
                       handleClose={handleCloseWindow}
                       handleMinimize={handleMinimizeWindow}
                       handleFocus={handleFocusWindow}
-                      constraintsRef={windowLayerRef}
                       isMobile={isMobile}
                   >
                       <AppContent appId={app.id} />
@@ -284,8 +283,7 @@ export default function Home() {
               soundOn={soundOn}
               theme={theme}
               onToggleSound={toggleSound}
-              onToggleTheme={toggleTheme}
-              playClick={playClick}
+              onSelectTheme={setTheme}
             />
 
           </motion.div>
