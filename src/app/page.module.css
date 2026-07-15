@@ -77,6 +77,27 @@
   overflow: hidden;
 }
 
+/* Icon tiles get a solid, icon-matched color instead of the frosted
+   glass pass-through blur. Also overridden (at higher specificity) for
+   the [data-theme] case near the theme accent rules below. */
+.tile-links {
+  background: linear-gradient(160deg, #4a3210, #241706);
+  backdrop-filter: none;
+  border-color: rgba(255, 201, 74, 0.3);
+}
+
+.tile-skills {
+  background: linear-gradient(160deg, #113947, #0a1f26);
+  backdrop-filter: none;
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.tile-projects {
+  background: linear-gradient(160deg, #33383d, #1c1f22);
+  backdrop-filter: none;
+  border-color: rgba(156, 163, 175, 0.3);
+}
+
 .appLabel {
   font-size: 14px;
   font-weight: 400;
@@ -112,6 +133,16 @@
   object-fit: cover;
   border-radius: 25px;
   display: block;
+}
+
+/* The profile photo fills the tile edge-to-edge, so give it its own thin
+   dark border to frame it (the outer .glassEffect border is too faint to
+   read once the photo covers the tile). A real `border` is used rather
+   than an inset box-shadow because inset shadows don't paint over <img>
+   content; box-sizing keeps the photo the same size. */
+.profileWrapper .gridIcon {
+  border: 5px solid rgb(40, 40, 40);
+  box-sizing: border-box;
 }
 
 /* 4. Dock Styles */
@@ -594,6 +625,29 @@ a.projectCard:hover {
 :global([data-theme]) .glassEffect {
   background: rgba(var(--accent), 0.12);
   border-color: rgba(var(--accent), 0.16);
+}
+
+/* Icon tiles get a solid, icon-matched color instead of the frosted/tinted
+   glass pass-through — the blur and theme tint were showing the moving
+   background wave through the SVG icons' transparent areas, reading as
+   hazy. Higher specificity than the theme rule above so it always wins,
+   regardless of which accent color is selected. */
+:global([data-theme]) .tile-links {
+  background: linear-gradient(160deg, #4a3210, #241706);
+  backdrop-filter: none;
+  border-color: rgba(255, 201, 74, 0.3);
+}
+
+:global([data-theme]) .tile-skills {
+  background: linear-gradient(160deg, #113947, #0a1f26);
+  backdrop-filter: none;
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+:global([data-theme]) .tile-projects {
+  background: linear-gradient(160deg, #33383d, #1c1f22);
+  backdrop-filter: none;
+  border-color: rgba(156, 163, 175, 0.3);
 }
 
 /* Windows keep a dark, readable base regardless of theme (higher specificity

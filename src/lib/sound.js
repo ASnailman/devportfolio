@@ -17,8 +17,8 @@ const SOUND_URLS = {
 
 // Per-event default volume (0..1).
 const DEFAULT_VOLUME = {
-  open: 0.9,
-  close: 0.9,
+  open: 0.1,
+  close: 0.1,
 };
 
 let audioCtx = null;
@@ -96,7 +96,7 @@ export function playSound(name, options = {}) {
   const buffer = buffers[name];
   if (!buffer) return; // not decoded yet (or failed) — stay silent this time
 
-  const volume = options.volume ?? DEFAULT_VOLUME[name] ?? 0.9;
+  const volume = options.volume ?? DEFAULT_VOLUME[name] ?? 0.1;
   playBuffer(ctx, buffer, volume);
 }
 

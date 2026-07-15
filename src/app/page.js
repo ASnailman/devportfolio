@@ -19,9 +19,10 @@ import styles from './page.module.css';
 // `icon` (emoji) is kept as a fallback/reference and is no longer rendered.
 const APPS_CONFIG = [
   { id: 'profile', label: 'Profile', isLarge: true, icon: '👋', image: '/app_images/harris_prof_clean.png' },
-  { id: 'links', label: 'Links', isLarge: false, icon: '🔗', image: '/icons/placeholder.svg' },
-  { id: 'skills', label: 'Skills', isLarge: false, icon: '🛠️', image: '/icons/placeholder.svg' },
-  { id: 'projects', label: 'Apps', isLarge: false, icon: '📦', image: '/icons/placeholder.svg' },
+  { id: 'links', label: 'Links', isLarge: false, icon: '🔗', image: '/icons/links.svg' },
+  { id: 'skills', label: 'Skills', isLarge: false, icon: '🛠️', image: '/icons/skills.svg' },
+  { id: 'projects', label: 'Apps', isLarge: false, icon: '📦', image: '/icons/apps.svg' },
+  // { id: 'FAQ', label: 'Apps', isLarge: false, icon: '📦', image: '/icons/placeholder.svg' },
 ];
 
 // Startup greeting shown after the loading spinner. Change this string to
@@ -48,7 +49,7 @@ function GridApp({ app, onOpen }) {
       whileHover={{ scale: 1.05, filter: "brightness(1.15)" }}
       whileTap={{ scale: 0.95 }}
     >
-      <div className={styles.glassEffect}>
+      <div className={`${styles.glassEffect} ${styles[`tile-${app.id}`] || ''}`}>
          {/* eslint-disable-next-line @next/next/no-img-element */}
          <img
            className={styles.gridIcon}
